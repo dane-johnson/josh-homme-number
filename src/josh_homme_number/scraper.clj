@@ -6,10 +6,12 @@
 (def ^:dynamic *artist-scraper* (:allmusic artists/scrapers))
 (def ^:dynamic *band-scraper* (:allmusic bands/scrapers))
 
-(defn fetch-url
-  "Gets the html content of a url"
-  [url]
-  (html-resource (java.net.URL. url)))
+(def fetch-url
+  "Gets the html content of a url. Memoized to avoid repeat http calls"
+  (memoize
+   (fn
+     [url]
+     (html-resource (java.net.URL. url)))))
 
 (defn alist->content-url-map
   "Converts a list of links to a map of content to urls using the specified scraper"
