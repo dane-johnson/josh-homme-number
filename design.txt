@@ -1,0 +1,12 @@
+Scraping is accomplished via Enlive
+
+Site specific scr
+
+To find a given artist's Josh Homme number, Implement a breadth-first search.
+Artists are nodes, bands are links. The root is Josh, obviously.
+
+Breadth first is a good choice because that means that we can minimize page requests, possibly avoiding IP blockage.
+
+The main problem is trying to find a way of doing all this asynchronously.
+
+A good way I think would be a barrier before going down another level. As I'm new to clojure concurrency, I will need to do some research on this one.
