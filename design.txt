@@ -1,6 +1,6 @@
 Scraping is accomplished via Enlive
 
-Site specific scr
+Site specific scrapers are in the scrapers packages.
 
 To find a given artist's Josh Homme number, Implement a breadth-first search.
 Artists are nodes, bands are links. The root is Josh, obviously.
@@ -10,3 +10,19 @@ Breadth first is a good choice because that means that we can minimize page requ
 The main problem is trying to find a way of doing all this asynchronously.
 
 A good way I think would be a barrier before going down another level. As I'm new to clojure concurrency, I will need to do some research on this one.
+
+One way I have thought about avoiding the concurrency nightmare that awaits me here is to actually build the tree to a certain depth ahead of time in a seperate thread, and then do a depth first search on the tree as it builds. The trade-off here is that this may result in doing too many http requests and getting my IP banned by the sites I am scraping. If I can find a way to send of threads to build the next layer only after the previous layer has been scanned, that would be ideal.
+
+From what I've seen so far, I think it would be best to actually do the first few conditionals, which could result in finding the artist or ending a branch (either by finding an artist that has already been added to the set or by reaching the maximum depth). At this point, if the the signal to go forwards is received, spawn threads to load the next level, do the checks there, and signal them to go forwards once it has been determined that none meet an edge case.
+
+Description of recursive algorthm:
+  Edge cases:
+    1. Artist is one we are looking for
+    2. Artist is an artist that has a shorter or equivalent distance from root
+    3. Maximum depth has been reached
+  Psuedocode:
+    0. Given a node (vector containing artist name and url), maximum depth, and the desired artist.
+    1. Check edge cases
+      1.1 If artist we are looking for, return an empty list
+      1.2 If max depth reached or artist has been seen, return nil
+    2. Await signal that all siblings did not find 
