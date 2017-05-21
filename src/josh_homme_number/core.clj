@@ -6,13 +6,10 @@
 (def ^:dynamic *base-url*
   "http://www.allmusic.com/artist/josh-homme-mn0000828897")
 
-(def found-artists (atom #{"Josh Homme"}))
-(def found-bands (atom #{}))
-
 (defn -main
   []
   (do
-    (println "Getting all 2nd order persons")
+    (println "Looking for Dave Grohl")
     (->> *base-url*
          (fetch-url)
          (get-bands)

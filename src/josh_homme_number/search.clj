@@ -45,19 +45,22 @@
 (defn next-artist-tier
   "Gets the next layer under this as a seq"
   [node]
-  (->> (:links node)
-      (reduce #(concat %1 (:links %2)) (list))))
+  (->> (deref-delayed-future (:links node))
+       (reduce #(concat %1 (:links %2)) (list))))
 
-;; (defn search 
-;;   "Searches through the artist tree to a specifed max depth, and returns 
-;;   a path to get back to Homme from the artist, or nil if not found"
-;;   [root artist max-depth]
-;;   (loop [queue (conj clojure.lang.PersistentQueue/EMPTY root)]
-;;     (let [curr (peek queue)
-;;           queue (pop queue)]
-;;       (cond
-;;         (= artist (:name curr)) (:path curr)
-;;         (> (.depth curr) max-depth) nil
-;;         :else
-;;         (do
-;;           (doseq []))))))
+(defn search 
+  "Searches through the artist tree to a specifed max depth, and returns 
+  a path to get back to Homme from the artist, or nil if not found"
+  [root artist max-depth]
+  (loop [queue (conj clojure.lang.PersistentQueue/EMPTY root)]
+    (let [curr (peek queue)
+          queue (pop queue)]
+      (cond
+        (= artist (:name curr)) (:path curr)
+        (> (.depth curr) max-depth) nil
+        :else
+        (let [next-artists (next-artist-tier curr)]
+          (when ((comp not >) (inc (.depth curr)) max-depth)
+            (doseq [next next-artists]
+              (map force (:links next))))
+          (recur (apply conj queue next-artists)))))))
