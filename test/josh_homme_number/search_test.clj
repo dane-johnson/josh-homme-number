@@ -1,23 +1,28 @@
 (ns josh-homme-number.search-test
   (:require [expectations :refer :all]
-            [josh-homme-number.search :refer :all]))
+            [josh-homme-number.search :refer :all]
+            [josh-homme-number.scraper :refer :all]))
 
-(def mock-tail-node
-  (->Node "Dane Johnson"
-          '("The Band I Formed When I Kidnapped Dave Grohl" "Dave Grohl"
-            "Them Crooked Vultures" "Josh Homme") '()))
+(defn mock-fetch
+  "Mock api call"
+  [_]
+  {})
+(defn mock-get-artists
+  "Mock artist scraper"
+  [_]
+  '(["Arthur Dent" "ad.com"]))
+(defn mock-get-bands
+  "Mock band scraper"
+  [_]
+  '(["Life, the Universe, and Everything" "ltuae.com"]))
 
-(expect 2 (.depth mock-tail-node))
+(defmacro mock-api
+  [& args]
+  `(with-redefs [fetch-url mock-fetch
+                 get-artists mock-get-artists
+                 get-bands mock-get-bands]
+     ~@args))
 
-(expect delay? (delayed-future (+ 1 1)))
-(expect future? (force (delayed-future (+ 1 1))))
-(expect 2 (deref-delayed-future (delayed-future (+ 1 1))))
-
-(expect (list "Dane Johnson" "Dave Grohl")
-        (next-artist-tier {:links '({:links ("Dane Johnson")}
-                                    {:links ("Dave Grohl")})}))
-(expect (list (->Node "Dave Grohl" '() '()))
-        (next-artist-tier
-         (->Node "Josh Homme" '()
-                 (list (->Node "TCV" '()
-                           (list (->Node "Dave Grohl" '() '())))))))
+(expect '(["Arthur Dent" "ad.com"
+           ("Life, the Universe, and Everything" "Arthur Dent")])
+        (mock-api (next-tier ["Arthur Dent" "ad.com" (list)])))
