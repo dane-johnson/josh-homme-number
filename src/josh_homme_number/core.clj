@@ -1,5 +1,6 @@
 (ns josh-homme-number.core
-  (:require [josh-homme-number [scraper :refer :all] [search :refer :all]])
+  (:require [josh-homme-number [scraper :refer :all]
+                               [search :refer :all]])
   (:gen-class))
 
 
