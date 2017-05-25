@@ -30,3 +30,6 @@
                 future? second
                 '("Life, the Universe, and Everything" "Arthur Dent") last)
         (first (next-tier ["Arthur Dent" (future (fetch-url "")) (list)])))
+
+(expect true? (fuzzy-match "Arthur Dent" "Arhur Rent"))
+(expect false? (fuzzy-match "Arthur Dent" "Ford Prefect"))

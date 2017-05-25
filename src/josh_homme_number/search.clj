@@ -1,6 +1,15 @@
 (ns josh-homme-number.search
-  (:require [josh-homme-number.scraper :refer :all])
+  (:require [clj-fuzzy.metrics :refer [dice]]
+            [josh-homme-number.scraper :refer :all])
   (:gen-class))
+
+
+(def ^:dynamic *match-threshold* 0.5)
+
+(defn fuzzy-match
+  "Tests if two strings match within a certain degree, *match-threshold*"
+  [a b]
+  (> (dice a b) *match-threshold*))
 
 (defn depth
   "Computes how many degrees are represented by a path"
@@ -31,6 +40,6 @@
     (let [[name _ path :as v] (peek q)]
       (cond
         (nil? v) nil
-        (= name artist) (cons name path)
+        (fuzzy-match name artist) (cons name path)
         (= (depth path) max-depth) (recur (pop q))
         :else (recur (apply conj (pop q) (next-tier v)))))))
