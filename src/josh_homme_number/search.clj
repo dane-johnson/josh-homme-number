@@ -9,11 +9,16 @@
 
 (defn next-tier
   "Gets the next tier of artists after the current one"
-  [[name url path]]
-  (->> (get-bands (fetch-url url))
+  [[name page path]]
+  (->> (get-bands @page)
        (reduce (fn [s [band-name band-url]]
                  (->> (get-artists (fetch-url band-url))
+                      ;; Push the new path into the vector
                       (map #(conj % (conj path name band-name)))
+                      ;; Replace the URL with a future of the resolved
+                      ;; page
+                      (map #(update % 1 (fn fetch-in-future [url]
+                                          (future (fetch-url url)))))
                       (concat s)))
                (list))))
 

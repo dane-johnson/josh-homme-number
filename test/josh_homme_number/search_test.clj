@@ -15,14 +15,18 @@
   "Mock band scraper"
   [_]
   '(["Life, the Universe, and Everything" "ltuae.com"]))
+(defn in-context
+  {:expectations-options :in-context}
+  [work]
+  (let [work-ns (str (.ns (:the-var (meta work))))]
+    (if (= work-ns "josh-homme-number.search-test")
+      (with-redefs [fetch-url mock-fetch
+                    get-artists mock-get-artists
+                    get-bands mock-get-bands]
+        (work))
+      (work))))
 
-(defmacro mock-api
-  [& args]
-  `(with-redefs [fetch-url mock-fetch
-                 get-artists mock-get-artists
-                 get-bands mock-get-bands]
-     ~@args))
-
-(expect '(["Arthur Dent" "ad.com"
-           ("Life, the Universe, and Everything" "Arthur Dent")])
-        (mock-api (next-tier ["Arthur Dent" "ad.com" (list)])))
+(expect (more-> "Arthur Dent" first
+                future? second
+                '("Life, the Universe, and Everything" "Arthur Dent") last)
+        (first (next-tier ["Arthur Dent" (future (fetch-url "")) (list)])))
